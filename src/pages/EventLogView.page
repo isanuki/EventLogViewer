@@ -1,0 +1,85 @@
+<apex:page controller="EventLogViewController" action="{!init}" readOnly="true">
+
+<apex:stylesheet value="{!URLFOR($Resource.tablesorter, 'tablesorter/themes/blue/style.css')}"/>
+<apex:includeScript value="{!URLFOR($Resource.tablesorter, 'tablesorter/jquery-latest.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.tablesorter, 'tablesorter/jquery.tablesorter.min.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.tablesorter, 'tablesorter/jquery.metadata.js')}"/>
+
+<script type="text/javascript">
+  $j = jQuery.noConflict();
+  beenFocused = true;
+  $j(document).ready(function(){ 
+    $j('.loading1').hide();
+    changeMode("{!selectedMode}");
+  });
+  
+  function changeMode(value){
+    if(value == "list"){
+      $j(".eventList").show();
+      $j(".analysisList").hide();
+    } else if(value == "analysis"){
+      $j(".eventList").hide();
+      $j(".analysisList").show();
+    }
+  }
+  
+</script>
+
+<apex:form id="fm1">
+  <apex:selectRadio value="{!selectedMode}" onchange="changeMode(this.value);">
+    <apex:selectOption itemValue="list" itemLabel="{!$Label.ELV_View}"/>
+    <apex:selectOption itemValue="analysis" itemLabel="{!$Label.ELV_Analysis}"/>
+  </apex:selectRadio>
+  <apex:pageBlock id="pb1">
+  <apex:pageMessages ></apex:pageMessages>
+    <apex:selectList size="1" value="{!selectedEventType}" id="eventTypeList" styleclass="eventList">
+      <apex:selectOptions value="{!eventTypeList}" />
+    </apex:selectList>
+    <apex:selectList size="1" value="{!selectedAnalysisType}" id="analysisTypeList" styleclass="analysisList">
+      <apex:selectOptions value="{!analysisTypeList}" />
+    </apex:selectList>
+    <apex:inputField value="{!tsk.RecurrenceStartDateOnly}" />～
+    <apex:inputField value="{!tsk.RecurrenceEndDateOnly}" />
+    <apex:commandButton value="{!$Label.ELV_Search}" action="{!serachLog}" onclick="$j('.loading1').show();" oncomplete="$j('.loading1').hide();changeMode('{!selectedMode}');" reRender="pb1"/>
+    <apex:image value="/img/loading.gif" id="loading" styleclass="loading1"/>
+    <apex:outputPanel layout="block" rendered="{!csvFiles <> null}">
+      <apex:outputLink value="/apex/EventLogCsv" target="_blank">Download
+          <apex:param name="et" value="{!selectedEventType}"/>
+          <apex:param name="st" value="{!startDateParam}"/>
+          <apex:param name="ed" value="{!endDateParam}"/>
+      </apex:outputLink>
+    </apex:outputPanel>
+    
+    <table class="tablesorter" >
+      <thead>
+        <tr>
+          <apex:repeat value="{!csvFileHeader}" var="headerColumn" >
+            <th>{!headerColumn}</th>
+          </apex:repeat>
+        </tr>
+      </thead>
+      <apex:repeat value="{!csvFiles}" var="record" >
+        <tr>
+          <apex:repeat value="{!record}" var="column" >
+            <td>{!column}</td>
+          </apex:repeat>
+        </tr>
+      </apex:repeat>
+    </table>
+    <script type="text/javascript">
+      $j(document).ready(function() {
+        $j(".tablesorter").tablesorter();
+      });
+    </script>
+    <apex:chart data="{!anlDatas}" height="500" width="700" theme="Category5">
+      <apex:axis type="Numeric" position="left" title="{!anlYtitle}" grid="true" fields="val" >
+        <apex:chartLabel />
+      </apex:axis>
+      <apex:axis type="Category" position="bottom" fields="name" title="{!anlXtitle}">
+        <apex:chartLabel rotate="90"/>
+      </apex:axis>
+      <apex:barSeries orientation="vertical" axis="left" stacked="true" xField="name" yField="val" title="hoge"/>
+    </apex:chart>
+  </apex:pageBlock>
+</apex:form>
+</apex:page>

@@ -1,0 +1,5 @@
+<apex:page contentType="text/csv;charset=Windows-31J;#{!fileName}.csv" controller="EventLogCsvController" readOnly="true">
+  <apex:repeat value="{!csvFiles}" var="record" >
+    <apex:repeat value="{!record}" var="column">{!column}{!IF(column='\"', '\"', '')}{!IF(BEGINS(column,'\"'), ',','')}</apex:repeat>
+  </apex:repeat>
+</apex:page>
