@@ -44,5 +44,9 @@
         <members>EventLogView</members>
         <name>CustomTab</name>
     </types>
+    <types>
+        <members>tablesorter</members>
+        <name>StaticResource</name>
+    </types>
     <version>32.0</version>
 </Package>
